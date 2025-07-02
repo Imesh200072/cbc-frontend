@@ -34,7 +34,7 @@ export default function AddProductPage(){
 
         const token = localStorage.getItem("token")
         if(token==null){
-            window.location.href = "/login"
+            navigate("/login")
             return
         }
 
