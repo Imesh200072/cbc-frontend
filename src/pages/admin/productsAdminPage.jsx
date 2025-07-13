@@ -109,6 +109,7 @@ export default function ProductAdminPage(){
                                     <tr key={index}>
                                         <td>
                                             <img src={product.images[0]} alt={product.name} className="w-[50px] h-[50px]"/>
+                                            
                                         </td>
                                         <td className="p-[10px]">{product.productId}</td>
                                         <td className="p-[10px]">{product.name}</td>
@@ -161,3 +162,4 @@ export default function ProductAdminPage(){
         </div>
     )
 }
+
