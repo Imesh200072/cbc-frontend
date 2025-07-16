@@ -1,92 +1,37 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { BiPlus, BiTrash } from "react-icons/bi";
+import { BiEdit, BiPlus, BiTrash } from "react-icons/bi";
 import { Link,  useNavigate } from "react-router-dom";
+import Loader from "../../components/loader";
 
-const sampleProducts = [
 
-  {
-    productId: "COSM001",
-    name: "Radiant Glow Face Cream",
-    altNames: ["Brightening Cream", "Day Cream"],
-    labelledPrice: 2499,
-    price: 1999,
-    images: ["/images/glow-face-cream.jpg"],
-    description: "A hydrating face cream that brightens your skin and gives a natural glow.",
-    stock: 150,
-    isAvailable: true,
-    category: "cosmatics"
-  },
-  {
-    productId: "COSM002",
-    name: "Velvet Matte Lipstick - Rose Red",
-    altNames: ["Red Lipstick", "Matte Lipstick"],
-    labelledPrice: 1599,
-    price: 1299,
-    images: ["/images/rose-red-lipstick.jpg"],
-    description: "A smooth, long-lasting matte lipstick that enhances your lips with bold color.",
-    stock: 200,
-    isAvailable: true,
-    category: "cosmatics"
-  },
-  {
-    productId: "COSM003",
-    name: "Natural Kajal Eyeliner",
-    altNames: ["Black Kajal", "Eye Pencil"],
-    labelledPrice: 799,
-    price: 649,
-    images: ["/images/natural-kajal.jpg"],
-    description: "Soft and smudge-proof kajal eyeliner made from natural ingredients for sensitive eyes.",
-    stock: 100,
-    isAvailable: true,
-    category: "cosmatics"
-  },
-  {
-    productId: "COSM004",
-    name: "Herbal Shampoo - Aloe & Neem",
-    altNames: ["Anti-Dandruff Shampoo", "Herbal Hair Cleanser"],
-    labelledPrice: 899,
-    price: 749,
-    images: ["/images/herbal-shampoo.jpg"],
-    description: "An herbal shampoo enriched with aloe vera and neem extracts for healthy hair.",
-    stock: 80,
-    isAvailable: true,
-    category: "cosmatics"
-  },
-  {
-    productId: "COSM005",
-    name: "Sunscreen SPF 50+ PA+++",
-    altNames: ["Sunblock", "UV Protection Lotion"],
-    labelledPrice: 1199,
-    price: 999,
-    images: ["/images/sunscreen-spf50.jpg"],
-    description: "Broad-spectrum sunscreen that protects your skin from harmful UVA & UVB rays.",
-    stock: 120,
-    isAvailable: true,
-    category: "cosmatics"
-  }
-];
 
 
 export default function ProductAdminPage(){
-    const [products,setProducts] = useState(sampleProducts)
-    const [a,setA] = useState(0)
+    const [products,setProducts] = useState([])
+    const [isLoading, setIsLoading] = useState(true)
+
+    //const [a,setA] = useState(0)
+
     useEffect(
         ()=>{
-            axios.get(import.meta.env.VITE_BACKEND_URL+"/api/products").then(
+            if(isLoading){
+                axios.get(import.meta.env.VITE_BACKEND_URL+"/api/products").then(
                 (res)=>{
                     setProducts(res.data)
+                    setIsLoading(false)
                 }
-            )
+                )
+            } 
         },
-        [a]
+        [isLoading]
     )
     const navigate = useNavigate()
 
     return(
         <div className="w-full h-full border-[3px]">
-            <table>
+            {isLoading?(<Loader/>):(<table>
                 <thead>
                     <tr>
                         <th className="p-[10px]">Image</th>
@@ -117,7 +62,7 @@ export default function ProductAdminPage(){
                                         <td className="p-[10px]">{product.labelledPrice}</td>
                                         <td className="p-[10px]">{product.category}</td>
                                         <td className="p-[10px]">{product.stock}</td>
-                                        <td className="p-[10px]">
+                                        <td className="p-[10px] flex flex-row justify-center items-center">
                                             <BiTrash className="bg-red-500 p-[7px] text-3xl rounded-full text-white shadow-2xl shadow-red-500 cursor-pointer" onClick={
                                                 ()=>{
                                                     const token = localStorage.getItem("token")
@@ -136,7 +81,7 @@ export default function ProductAdminPage(){
                                                             console.log("Product deleted successfully")
                                                             console.log(res.data)
                                                             toast.success("Product deleted successfully")
-                                                            setA(a+1)
+                                                            setIsLoading(!isLoading)
                                                         }
                                                     ).catch(
                                                         (error)=>{
@@ -146,6 +91,15 @@ export default function ProductAdminPage(){
                                                     )
                                                 }
                                             }/>
+                                            <BiEdit onClick={
+                                                ()=>{
+                                                    navigate("/admin/updateProduct",
+                                                        {
+                                                            state: product
+                                                        }
+                                                    )
+                                                }
+                                            } className="bg-blue-500 p-[7px] text-3xl rounded-full text-white shadow-black cursor-pointer ml-[20px] " />
                                         </td>
                                     </tr>
                                 )
@@ -154,7 +108,7 @@ export default function ProductAdminPage(){
                     }
                 </tbody>
 
-            </table>
+            </table>)}
             <Link to={"/admin/newProduct"} className="fixed right-[60px] bottom-[60px] text-white bg-black p-[18px] rounded-full shadow-2xl">
 
                 <BiPlus className="text-3xl "/>
