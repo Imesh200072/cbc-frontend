@@ -1,22 +1,30 @@
-import "./productCard.css";
+import { Link } from "react-router-dom"
 
-export default function ProductCard(props) {
-  console.log(props);
-
-  return (
-    <div className="max-w-xs bg-white rounded-2xl shadow-lg overflow-hidden transition-transform transform hover:scale-105 p-4">
-      <img
-        src={props.image}
-        alt={props.name}
-        className="w-full h-48 object-cover rounded-lg"
-      />
-      <h1 className="text-xl font-semibold mt-4 text-gray-800">{props.name}</h1>
-      <p className="text-gray-600 text-md mt-2">Price: ${props.price}</p>
-      <button className="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
-        View More
-      </button>
-    </div>
-  );
+export default function ProductCard(props){
+    const product = props.product
+    return(
+        <Link to={"/overview/"+product.productId} className="w-[300px] h-[400px] flex flex-col shrink-0 shadow-2xl rounded-2xl overflow-hidden">
+            <img src={product.images[0]} className="w-full h-[275px] object-cover"></img>
+            <div className="w-full h-[125px] flex flex-col p-[3px]">
+                <span className="text-gray-400 text-[12px]">{product.productId}</span>
+                <h1 className="text-lg font-bold">
+                    {product.name} {" "}
+                    <span className="text-gray-500 text-[14px]">{product.category}</span>
+                </h1>
+                <div>
+                    {
+                        product.labelledPrice > product.price ?
+                        (<p>
+                            <span className="line-through mr-[10px]">{product.labelledPrice.toFixed(2)}</span>
+                            <span>{product.price.toFixed(2)}</span>
+                        </p>) : (
+                            <span>
+                                {product.price.toFixed(2)}
+                            </span>)
+                    }
+                </div>
+                
+            </div>
+        </Link>
+    )
 }
-
-
