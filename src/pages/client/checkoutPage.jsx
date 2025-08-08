@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { TbTrash } from "react-icons/tb"
 import { useLocation, useNavigate } from "react-router-dom"
 import toast from "react-hot-toast"
@@ -7,6 +7,37 @@ import axios from "axios"
 export default function CheckoutPage(){
     const location = useLocation()
     const navigate = useNavigate()
+
+    const [user, setUser] = useState(null)
+    const [name,setName] = useState("")
+    const [address,setAddress] = useState("")
+    const [phone,setPhone] = useState("")
+
+    useEffect(()=>{
+        const token = localStorage.getItem("token")
+        if(token == null){
+            toast.error("please login to checkout")
+            navigate("/login")
+            return
+        }else{
+            axios.get(import.meta.env.VITE_BACKEND_URL + "/api/users",{
+                headers:{
+                    Authorization: `Bearer ${token}`,
+                },
+            }).then(
+                (res)=>{
+                    setUser(res.data)
+                    setName(res.data.firstName + " " + res.data.lastName)
+                }
+            ).catch(
+                (err)=>{
+                    console.error(err)
+                    toast.error("Failed to fetch user details")
+                    navigate("/login")
+                }
+            )
+        }
+    },[])
     const [cart, setCart] = useState(location.state.items || [])
 
     if(location.state.items == null){
@@ -29,9 +60,13 @@ export default function CheckoutPage(){
             navigate("/login")
             return
         }
+        if(name ==="" || address==="" || phone===""){
+            toast.error("please fill all fields")
+            return
+        }
         const order = {
-            address: "Ratnapura",
-            phone: "077777772",
+            address: address,
+            phone: phone,
             items:[]
         }
         cart.forEach((item)=>{
@@ -104,9 +139,20 @@ export default function CheckoutPage(){
                     )
                 })
             }
+            
+
             <div className="w-[800px] h-[100px] m-[10px] p-[10px] shadow-2xl flex flex-row items-center justify-end bg-amber-400 relative ">
                 <span className="font-bold text-2xl ">Total:{" "}{getTotal().toFixed(2)}</span>
                 <button onClick={placeOrder} className="absolute left-[10px] w-[150px] h-[50px] cursor-pointer rounded-lg shadow-2xl bg-gray-700 text-white border-[2px] border-blue-500 hover:bg-gray-400 hover:text-black">Place Order</button>
+            </div>
+
+            <div className="w-[800px] h-[100px] m-[10px] p-[10px] shadow-2xl flex flex-row items-center justify-center relative ">
+               <input className="w-[200px] h-[40px] border border-gray-300 rounded-lg p-[10px] mr-[10px]" type="text" placeholder="Enter your name" value={name} onChange={(e)=> setName(e.target.value)}>
+               </input>
+               <input className="w-[200px] h-[40px] border border-gray-300 rounded-lg p-[10px] mr-[10px]" type="text" placeholder="Enter your address" value={address} onChange={(e)=> setAddress(e.target.value)}>
+               </input>
+               <input className="w-[200px] h-[40px] border border-gray-300 rounded-lg p-[10px] mr-[10px]" type="text" placeholder="Enter your phone" value={phone} onChange={(e)=> setPhone(e.target.value)}>
+               </input>
             </div>
         </div>
     )
